@@ -1,0 +1,648 @@
+<html>
+<head>
+<script src="xterm.min.js"></script>
+<link href="xterm.min.css" rel="stylesheet"/>
+<style>
+.container {
+  display: flex;
+  flex-grow: 1;
+  overflow: auto;
+}
+pre {
+  margin: 0;
+}
+.flex {
+  display: flex;
+  align-items: center;
+}
+.api-item {
+  margin: 10px 0;
+}
+.flexible {
+  flex-grow: 1;
+}
+.container .col {
+  flex-shrink: 0;
+  overflow: auto;
+  width: 50%;
+  height: 100%;
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+.container .col.col-7 {
+  width: 70%;
+}
+.container .col.col-3 {
+  width: 30%;
+}
+.code {
+  overflow: auto;
+  padding: 20px;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.2);
+  margin: 0;
+}
+#api pre {
+  font-size: 12px;
+}
+#api {
+}
+#api label {
+  display: inline-block;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: bold;
+  color: orange;
+  background: rgba(0, 0, 0, 0.2);
+}
+body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  /*
+  max-width: 1000px;
+  margin: 0 auto;
+  */
+  background: rgb(24,32,32);
+  font-family: sans-serif;
+  color: white;
+}
+table {
+  width: 100%;
+  background: rgba(0,0,0,0.2);
+  padding: 10px;
+  box-sizing: border-box;
+}
+tr {
+  cursor: pointer;
+}
+td {
+  font-size: 14px;
+  padding: 2px;
+}
+pre:empty {
+  margin: 0;
+}
+nav {
+  padding: 10px;
+}
+nav h1 {
+  letter-spacing: -1px;
+  margin: 0;
+  font-size: 30px;
+}
+nav form {
+  margin: 0;
+  flex-grow: 1;
+}
+#search {
+  padding: 10px;
+  margin: 0;
+  background: rgba(0,0,0,0.2);
+}
+#search input {
+/*
+  border: 4px solid orange;
+  */
+  border: none;
+  padding: 10px;
+  box-sizing: border-box;
+  width: 100%;
+  outline: none;
+}
+main {
+  margin: 0px auto;
+  display: flex;
+}
+.slot:empty {
+  padding: 0;
+}
+.slot {
+  margin: 5px 0;
+  padding: 10px;
+  background: rgba(0,0,0, 0.2);
+  box-sizing: border-box;
+}
+.slot div {
+  padding: 2px;
+  box-sizing: border-box;
+}
+.btn {
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+  background: orange;
+  color: rgba(0,0,0,0.8);
+  padding: 5px;
+  border-radius: 2px;
+  display: inline-block;
+  font-size: 12px;
+  margin-right: 5px;
+}
+.online {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  background: yellowgreen;
+}
+.hidden {
+  display: none;
+}
+section {
+  flex-grow: 1;
+}
+section .label {
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 5px;
+  color: orange;
+  padding-left: 10px;
+  background: rgba(0,0,0,0.2);
+}
+header {
+  display: flex;
+}
+header .tab.selected {
+  color: orange;
+  background: rgba(0,0,0,0.2);
+}
+header .tab {
+  color: gray;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 10px 20px;
+  margin: 0 10px;
+  background: none;
+
+}
+th {
+  text-align: left;
+  padding: 10px;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: orange;
+}
+#local, #started {
+  width: 100%;
+}
+#started td {
+  color: yellowgreen;
+}
+#started {
+  margin: 0 0 20px;
+}
+#started .btn {
+  background: yellowgreen;
+}
+td[data-key=id]:hover .val {
+  color: orange;
+}
+th:hover {
+  background: orange;
+  color: black;
+}
+td, th {
+  text-align: center;
+}
+[data-key=id], [data-key=filename], #local td, #started td {
+  width: 100%;
+  text-align: left;
+}
+.loading {
+  padding: 100px;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+  color: orange;
+  font-size: 20px;
+}
+#term:empty {
+  padding: 0;
+}
+#term {
+  margin: 0;
+/*
+  max-height: 200px;
+  */
+  font-size: 12px;
+  height: 100%;
+  overflow: auto;
+  padding: 20px;
+  box-sizing: border-box;
+  background: rgba(0,0,0,0.2);
+}
+
+a.item {
+  color: white;
+}
+
+</style>
+<script>
+
+const files = {}
+
+const code = (file, _port) => {
+  const port = 42424
+  const curl = `curl --request POST \\
+     --url http://127.0.0.1:${port}/v1/chat/completions \\
+     --header "Content-Type: application/json" \\
+     --data '{
+       "model": "${file}",
+       "messages": [
+         { "role": "system", "content": "You are a helpful assistant." },
+         { "role": "user", "content": "Hello!" }
+       ]
+     }'`
+  const js = `const url = 'http://127.0.0.1:${port}/v1/chat/completions'
+fetch(url, {
+  method: "post",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    model: "${file}",
+    messages: [
+      { role: "system", content: "You are a helpful assistant." },
+      { role: "user", content: "Hello!" }
+    ]
+  })
+}).then((res) => {
+  return res.json()
+}).then((res) => {
+  console.log(res)
+})`
+const python = `import requests 
+url = 'http://127.0.0.1:${port}/v1/chat/completions'
+response = requests.post(url, json = {
+  "model": "${file}",
+  "messages": [
+    { "role": "system", "content": "You are a helpful assistant." },
+    { "role": "user", "content": "Hello!" }
+  ]
+})
+print(response.json())`
+
+  return { curl, js, python }
+}
+
+const es = new EventSource("/stream");
+const enc = new TextDecoder("utf-8");
+
+const updateStatus = async () => {
+  let status = await fetch("/call", {
+    method: "post",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      _: ["status"] 
+    })
+  }).then((res) => {
+    return res.json()
+  })
+  console.log("status", status)
+  const keys = ["running"]
+  const header = "<tr>" + keys.map((key) => {
+    return `<th data-key="filename">${key}</th>`
+  }).join("") + "</tr>"
+  const body = status.response.map((r) => {
+    return `<tr data-id='${r.file}'>
+  <td data-key="${r.file}">
+    <div class='flex'>
+      <button class='stop btn' data-file="${r.file}">Stop</button>
+      <a class='item' href="http://localhost:${r.port}" target="_blank">${r.file}</a>
+      <div class='flexible'></div>
+      <button class='api btn' data-port="${r.port}" data-file="${r.file}">API</button>
+    </div>
+  </td>
+</tr>`
+  }).join("")
+  document.querySelector("#started").innerHTML = header + body
+}
+
+const api = async (file, port) => {
+  const { curl, js, python } = code(file, port)
+  document.querySelector("#api").classList.remove('hidden')
+  document.querySelector("#curl pre").innerHTML = curl
+  document.querySelector("#js pre").innerHTML = js
+  document.querySelector("#python pre").innerHTML = python
+}
+
+const stop = async (r) => {
+  let _ = ["stop", "local", r.file]
+  const response = await fetch("/call", {
+    method: "post",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ _ })
+  }).then((res) => {
+    return res.json()
+  })
+  console.log(response)
+}
+const start = async (r) => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  let _
+
+  if (r.repo) {
+    _ = ["start", "huggingface", r.repo, r.file]
+  } else {
+    _ = ["start", "local", r.file]
+  }
+  const response = await fetch("/call", {
+    method: "post",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ _ })
+  }).then((res) => {
+    return res.json()
+  })
+  console.log(response)
+}
+
+const search = async (q) => {
+  let query = "gguf"
+  let sort = "likes7d"
+  if (q) {
+    if (q.query) {
+      query = q.query + " gguf"
+    }
+    if (q.sort) {
+      sort = q.sort
+    }
+  }
+
+  const count = 100
+  document.querySelector("#hf").innerHTML = `<div class='loading'></div>`
+
+  const url = `https://huggingface.co/api/models?search=${query}&limit=${count}&sort=${sort}&full=true&config=true`
+  const response = await fetch(url).then((res) => {
+    return res.json()
+  })
+  console.log("response", response)
+  const keys = ["id", "author", "downloads", "likes7d", "likes", "model_card", "created"]
+  const header = "<tr>" + keys.map((key) => {
+    if (key === 'created') {
+      return `<th class='sorter' data-key="createdAt">${key}</th>`
+    } else {
+      return `<th class='sorter' data-key="${key}">${key}</th>`
+    }
+  }).join("") + "</tr>"
+  const body = response.map((r) => {
+    files[r.id] = r.siblings.map((x) => {
+      return x.rfilename
+    }).filter((x) => {
+      return x.endsWith(".gguf")
+    })
+
+    r.model_card = `https://huggingface.co/${r.id}`
+    r.files = `https://huggingface.co/${r.id}/tree/main`
+    r.created = new Date(r.createdAt).toLocaleDateString()
+    return `<tr data-id='${r.id}'>` + keys.map((key) => {
+      if (key === 'model_card') {
+        return `<td data-key='${key}' data-val='${r[key]}'><a class='btn' href="${r[key]}" target="_blank">View</a></td>`
+      } else if (key === 'files') {
+        return `<td data-key='${key}' data-val='${r[key]}'><a class='btn' href="${r[key]}" target="_blank">View</a></td>`
+      } else {
+        return `<td data-key='${key}' data-val='${r[key]}'><div class='val'>${r[key] ? r[key] : '-'}</div><div class='slot'></div></td>`
+      }
+    }).join("") + "</tr>"
+  }).join("")
+  document.querySelector("main table#hf").innerHTML = header + body
+  console.log("files", files)
+}
+const local = async () => {
+  const response = await fetch("/v1/models").then((res) => {
+    return res.json()
+  })
+  console.log("response", response)
+  const gguf = response.data
+  const keys = ["filename"]
+  const header = "<tr>" + keys.map((key) => {
+    return `<th data-key="${key}">${key}</th>`
+  }).join("") + "</tr>"
+  const body = gguf.map((r) => {
+    return `<tr data-id='${r.id}'>` + keys.map((key) => {
+      return `<td data-key='${key}' data-val='${r.id}'><button class='btn' data-file="${r.id}">Start</button> ${r.id}</td>`
+    }).join("") + "</tr>"
+  }).join("")
+  document.querySelector("main table#local").innerHTML = header + body
+  console.log("files", files)
+}
+document.addEventListener("DOMContentLoaded", async () => {
+//  const term = new Terminal({
+//    cols: 500
+//  });
+//  term.open(document.querySelector('#terminal'));
+  es.addEventListener('term', async ev => {
+    console.log("ev", ev)
+    let event = JSON.parse(ev.data)
+    console.log("## event", event)
+    if (event.data) {
+      const decoded = enc.decode(new Uint8Array(event.data.data))
+      console.log({ decoded })
+
+      let term = document.querySelector('#term')
+      let html = term.innerHTML
+      term.innerHTML = html + decoded;
+      term.scrollTop = term.scrollHeight;
+    }
+
+
+    //term.write(decoded)
+
+    if (event.type === "started") {
+      console.log("started")
+      await updateStatus()
+    } else if (event.type === "stopped") {
+      console.log("stopped")
+      await updateStatus()
+    }
+  });
+
+  await local()
+  await updateStatus()
+
+//  code({ port: location.port })
+  document.querySelector("#search").addEventListener("submit", async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const q = document.querySelector("#q").value
+    await search({ query: q })
+  })
+  document.querySelector("#tab1").addEventListener("click", (e) => {
+    document.querySelector("#tab1-content").classList.remove("hidden")
+    document.querySelector("#tab2-content").classList.add("hidden")
+    document.querySelector("#tab1").classList.add("selected")
+    document.querySelector("#tab2").classList.remove("selected")
+  })
+  document.querySelector("#tab2").addEventListener("click", async (e) => {
+    await search()
+    document.querySelector("#tab1-content").classList.add("hidden")
+    document.querySelector("#tab2-content").classList.remove("hidden")
+    document.querySelector("#tab1").classList.remove("selected")
+    document.querySelector("#tab2").classList.add("selected")
+    document.querySelector("input[type=search]").focus()
+  })
+
+  document.querySelector("table#started").addEventListener("click", async (e) => {
+    let target
+    // 1. start
+    if (e.target.classList.contains("stop")) {
+      target = e.target
+    } else {
+      let t = e.target.closest(".stop")
+      if (t) {
+        target = t
+      }
+    }
+    if (target) {
+      let file = target.getAttribute("data-file")
+      await stop({ file }) 
+      return
+    }
+
+    if (e.target.classList.contains("api")) {
+      target = e.target
+    } else {
+      let t = e.target.closest(".api")
+      if (t) {
+        target = t
+      }
+    }
+    if (target) {
+      let port = target.getAttribute("data-port")
+      let file = target.getAttribute("data-file")
+      await api(file, port)
+      return
+    }
+  })
+  document.querySelector("table#local").addEventListener("click", async (e) => {
+    let target
+    // 1. start
+    if (e.target.getAttribute("data-file")) {
+      target = e.target
+    } else {
+      let t = e.target.closest("[data-file]")
+      if (t) {
+        target = t
+      }
+    }
+    console.log("target", target)
+    if (target) {
+      let file = target.getAttribute("data-file")
+      await start({ file }) 
+      return
+    }
+  })
+  document.querySelector("table#hf").addEventListener("click", async (e) => {
+    let target
+    // 1. start
+    if (e.target.getAttribute("data-file")) {
+      target = e.target
+    } else {
+      let t = e.target.closest("[data-file]")
+      if (t) {
+        target = t
+      }
+    }
+    console.log("target", target)
+    if (target) {
+      let repo = target.getAttribute("data-repo")
+      let file = target.getAttribute("data-file")
+      console.log({ repo, file })
+      await start({ repo, file }) 
+      return
+    }
+
+    // 2. expand details
+    if (e.target.hasAttribute("data-id")) {
+      target = e.target
+    } else {
+      let closest = e.target.closest("[data-id]")
+      if (closest) {
+        target = closest
+      }
+    }
+
+    if (target) {
+      // expand
+      let id = target.getAttribute("data-id")
+      target.querySelector("td[data-key=id] .slot").innerHTML = files[id].map((file) => {
+        return `<div><button data-repo="${id}" data-file="${file}" class='btn'>Start</button> ${file}</div>`
+      }).join("")
+      return
+    }
+
+
+    // 3. sorter
+    if (e.target.classList.contains("sorter")) {
+      target = e.target
+    } else {
+      let t = e.target.closest(".sorter")
+      if (t) {
+        target = t
+      }
+    }
+    if (target) {
+      const sort = target.getAttribute("data-key")
+      console.log("sort", sort)
+      if (sort === "id" || sort === "author") {
+      } else {
+        const q = document.querySelector("#q").value
+        await search({ query: q, sort })
+      }
+      return
+    }
+    console.log("x")
+
+
+  })
+})
+</script>
+</head>
+<body>
+<nav><h1>llamanet</h1></nav>
+<div class='container'>
+  <div class='col col-7'>
+    <table id='started'></table>
+    <div id='api' class='hidden'>
+      <div id='curl' class='api-item'>
+        <label>curl</label>
+        <pre class='code'></pre>
+      </div>
+      <div id='js' class='api-item'>
+        <label>javascript</label>
+        <pre class='code'></pre>
+      </div>
+      <div id='python' class='api-item'>
+        <label>python</label>
+        <pre class='code'></pre>
+      </div>
+    </div>
+    <header>
+      <div class='tab selected' id='tab1'>Downloaded</div>
+      <div class='tab' id='tab2'>Search</div>
+    </header>
+    <main>
+      <section id='tab1-content'>
+        <table id='local'></table>
+      </section>
+      <section id='tab2-content' class='hidden'>
+        <form id='search'><input autofocus id='q' type='search' placeholder='search gguf on huggingface'></form>
+        <table id='hf'></table>
+      </section>
+    </main>
+  </div>
+  <div class='col-3'>
+    <div id="terminal"></div>
+    <pre id='term'></pre>
+    <pre id='code'></pre>
+  </div>
+</div>
+</body>
+</html>

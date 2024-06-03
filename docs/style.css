@@ -1,0 +1,239 @@
+body {
+/*
+  background: rgb(27, 28, 29);
+  */
+}
+a.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  margin: 5px 5px 5px 0;
+  background: black;
+  text-decoration: none;
+  color: white;
+  border-radius: 10px;
+  font-weight: bold;
+}
+.sidebar {
+  background: none;
+}
+.markdown-section blockquote p {
+  padding: 0px;
+  margin: 0;
+}
+.markdown-section blockquote {
+  padding: 20px;
+  border-left: 10px solid rgba(145,208,118,1) !important;
+  color: black;
+
+  /*
+  background: rgba(154,205,50,0.1);
+  background: rgba(145,208,118,0.1);
+  background: rgba(0,0,100,0.04);
+  */
+
+}
+.app-name {
+  display: none;
+}
+.markdown-section {
+  max-width: 1000px;
+  margin: 0;
+  padding: 30px;
+}
+/*
+.markdown-section a {
+  width: 100%;
+}
+*/
+.markdown-section img {
+  background: rgba(255,255,255,0.1);
+  box-sizing: border-box;
+  border-radius: 10px;
+}
+.markdown-section img.fixed {
+  height: 300px;
+  text-align: center;
+  display: block;
+  width: 100%;
+  object-fit: contain;
+}
+.markdown-section h1 {
+  font-size: 180px;
+  line-height: 140px;
+  letter-spacing: -4px;
+  /*
+  font-family: sans-serif;
+  letter-spacing: -10px;
+  */
+  /*
+  padding: 0 40px;
+  border-left: 40px solid white;
+  */
+  text-transform: uppercase;
+  font-family: "Micro 5", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+
+}
+.hidden {
+  display: none !important;
+}
+
+.markdown-section h2, .markdown-section h3, .markdown-section h4 {
+/*
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 900;
+  font-style: normal;
+  font-variation-settings: "slnt" 0;
+  */
+  font-weight: bold;
+  font-family: Sans-serif;
+  text-transform: lowercase;
+}
+
+
+.markdown-section h2 {
+  letter-spacing: -5px;
+  font-size: 70px;
+  line-height: 70px;
+}
+
+.markdown-section h3 {
+  letter-spacing: -1px;
+  font-size: 50px;
+  line-height: 50px;
+}
+.markdown-section h4 {
+  letter-spacing: -1px;
+  font-size: 30px;
+  line-height: 30px;
+  /*
+  font-family: sans-serif;
+  */
+  display: inline-block;
+  margin: 15px 0 0;
+  padding-left: 10px;
+  border-left: 20px solid white;
+}
+.markdown-section h5 {
+  font-size: 20px;
+  line-height: 20px;
+  border-left: 15px solid white;
+  border-radius: 20px;
+  padding-left: 10px;
+  margin: 30px 0 0 0;
+}
+.markdown-section h4 a.anchor span {
+/*
+  color: rgb(145, 208, 118);
+  */
+}
+/*
+.markdown-section h4 a.anchor span {
+  color: #91d076;
+}
+*/
+a.anchor:hover {
+  
+  color: rgba(145,208,118,1);
+}
+a.anchor span {
+  font-weight: bold;
+  word-wrap: break-word;
+  color: rgba(145,208,118,1);
+}
+.sidebar li {
+  margin: 0;
+}
+.sidebar ul li.active a {
+/*
+  color: white;
+  */
+}
+.sidebar ul li a {
+/*
+  color: white;
+  */
+  color: rgba(0,0,0,0.8);
+  line-height: 22px;
+}
+.markdown-section h6 a.anchor span {
+/*
+  color: #91d076;
+  */
+}
+.markdown-section h6 {
+  padding: 5px 10px;
+  border-left: 6px solid #91d076;
+  margin: 0;
+}
+.markdown-section>:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6) code {
+  line-height: 1rem;
+}
+.markdown-section code {
+  padding: 3px;
+}
+.markdown-section pre>code {
+/*
+  color: rgba(255,255,255,0.8);
+  color: white;
+  */
+  background: none;
+  font-weight: bold;
+}
+.markdown-section pre {
+/*
+  border: 3px solid rgba(0,0,200,0.04);
+  background: rgba(0,0,200,0.01);
+  */
+  border-left: 8px solid rgba(145,208,118,0.4);
+  background: rgba(145,208,118,0.08);
+/*
+
+  background: rgba(0,0,0,0.8);
+  */
+}
+/*
+.markdown-section code {
+  background: none;
+}
+*/
+.markdown-section h3 {
+  border-left: 20px solid rgba(145,208,118,1);
+  font-size: 30px;
+  padding-left: 10px;
+  line-height: 30px;
+}
+.markdown-section h1, .markdown-section h2, .markdown-section h3, .markdown-section h4, .markdown-section strong {
+/*
+  color: black;
+  */
+  color: rgba(145,208,118,1);
+}
+.markdown-section li p {
+  margin: 0;
+}
+.markdown-section ol, .markdown-section p, .markdown-section ul {
+  line-height: 1.5rem;
+}
+.markdown-section a {
+/*
+  color: #91d076;
+  color: white;
+  */
+  color: cornflowerblue;
+}
+.markdown-section hr {
+  border-bottom: 1px solid rgba(0,0,0,0.1) !important;
+  margin: 50px 0;
+}
+
+
+@media screen and (max-width: 600px) {
+  .markdown-section h1 {
+    font-size: 120px;
+    line-height: 100px;
+    letter-spacing: -2px;
+  }
+}
