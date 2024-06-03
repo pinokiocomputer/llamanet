@@ -1,6 +1,6 @@
 # Llamanet
 
-> Instantly replace OpenAI with llama.cpp with zero dependency.
+![llamanet.png](llamanet.png)
 
 ![code.png](code.png)
 
@@ -22,6 +22,18 @@ Here's llamanet in action:
 ![runnet.gif](runnet.gif)
 
 Note that it downloads llamacpp and the models on the fly the first time it's run.
+
+---
+
+# Community
+
+## GitHub
+
+https://github.com/pinokiocomputer/llamanet
+
+## X
+
+https://x.com/cocktailpeanut
 
 ---
 

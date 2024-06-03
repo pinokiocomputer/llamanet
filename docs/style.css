@@ -141,7 +141,7 @@ a.anchor:hover {
 a.anchor span {
   font-weight: bold;
   word-wrap: break-word;
-  color: rgba(145,208,118,1);
+  color: black;
 }
 .sidebar li {
   margin: 0;
@@ -206,10 +206,11 @@ a.anchor span {
   line-height: 30px;
 }
 .markdown-section h1, .markdown-section h2, .markdown-section h3, .markdown-section h4, .markdown-section strong {
-/*
   color: black;
-  */
+  /*
   color: rgba(145,208,118,1);
+  */
+  font-weight: bold;
 }
 .markdown-section li p {
   margin: 0;
