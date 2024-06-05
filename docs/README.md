@@ -62,6 +62,10 @@ curl --request POST \
      }'
 ```
 
+Here's the full process:
+
+![terminal.gif](terminal.gif)
+
 
 ## 1. Using OpenAI Package
 
