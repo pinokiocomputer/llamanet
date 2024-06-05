@@ -1,4 +1,5 @@
 const fetch = require('cross-fetch')
+const os = require('os')
 const colors = require('colors')
 const path = require('path')
 const proxy = require('express-http-proxy-cp');
@@ -134,18 +135,28 @@ class Server {
     app.listen(this.port, async () => {
       await util.logLine(colors.green(`\n█ llamanet running at `) + colors.blue(`http://localhost:${this.port}\n`))
 
-      await util.logLine(colors.yellow(`[QUICKSTART] Try opening a new terminal and run the following command.
+      
+      if (os.platform() === "win32") {
+        await util.logLine(colors.yellow(`[QUICKSTART] Try opening a new terminal and run the following command.
 
-curl --request POST \\
-     --url http://127.0.0.1:42424/v1/chat/completions \\
-     --header "Content-Type: application/json" \\
-     --data '{
-       "model": "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-q4.gguf",
-       "messages": [
-         { "role": "system", "content": "You are a helpful assistant." },
-         { "role": "user", "content": "Do aliens exist?" }
-       ]
-     }'`))
+  curl --request POST ^
+      --url http://127.0.0.1:42424/v1/chat/completions ^
+      --header "Content-Type: application/json" ^
+      --data "{ \\"model\\": \\"https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-q4.gguf\\", \\"messages\\": [ { \\"role\\": \\"system\\", \\"content\\": \\"You are a helpful assistant.\\" }, { \\"role\\": \\"user\\", \\"content\\": \\"Do aliens exist?\\" } ] }"`))
+      } else {
+        await util.logLine(colors.yellow(`[QUICKSTART] Try opening a new terminal and run the following command.
+
+  curl --request POST \\
+      --url http://127.0.0.1:42424/v1/chat/completions \\
+      --header "Content-Type: application/json" \\
+      --data '{
+        "model": "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-q4.gguf",
+        "messages": [
+          { "role": "system", "content": "You are a helpful assistant." },
+          { "role": "user", "content": "Do aliens exist?" }
+        ]
+      }'`))
+      }
 
 
     })
