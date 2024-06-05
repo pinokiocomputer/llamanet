@@ -6,13 +6,12 @@ const llamanet = require("../index");
   let status = await llamanet({ _: ["status"] })
   console.log(status)
 
-  console.log("1")
-
   // 2. start llamacpp 1
   await llamanet({ 
     _: [
       "start",
-      "https://huggingface.co/bartowski/Phi-3-medium-128k-instruct-GGUF/resolve/main/Phi-3-medium-128k-instruct-IQ2_M.gguf?download=true",
+      //"https://huggingface.co/bartowski/Phi-3-medium-128k-instruct-GGUF/resolve/main/Phi-3-medium-128k-instruct-IQ2_M.gguf",
+      "https://huggingface.co/bartowski/dolphin-2.9.1-mixtral-1x22b-GGUF/resolve/main/dolphin-2.9.1-mixtral-1x22b-IQ2_XS.gguf"
     ],
     c: 128000,
     verbose: true

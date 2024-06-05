@@ -1,4 +1,5 @@
 const fs = require('fs')
+const colors = require('colors')
 const { glob } = require('glob');
 const path = require('path')
 const { spawn } = require('child_process');
@@ -15,32 +16,6 @@ if (!fs.existsSync(homedir)) {
   fs.mkdirSync(homedir, { recursive: true })
 }
 
-const run = (req, cb) => {
-  const command = "./main"
-  let args = ["-m", req.file]
-  if (req.repo) {
-    args = args.concat(["--hf-repo", req.repo])
-  }
-
-  let terminal = ""
-  const child = spawn(command, args, {
-    cwd: bindir,
-  });
-
-  // Handle output from the child process
-  child.stdout.on('data', (data) => {
-    cb(data)
-  });
-
-  child.stderr.on('data', (data) => {
-    cb(data)
-  });
-
-  child.on('close', async (code) => {
-    await util.log(`child process exited with code ${code}`);
-  });
-  return child
-}
 const server = async (req, cb) => {
 
   const port = await util.port()
@@ -63,6 +38,7 @@ const server = async (req, cb) => {
 //  if (req.repo) {
 //    args = args.concat(["--hf-repo", req.repo])
 //  }
+  await util.logLine(`${command} ${args.join(" ")}`)
 
   let terminal = ""
   const child = spawn(command, args, {
@@ -79,7 +55,7 @@ const server = async (req, cb) => {
   });
 
   child.on('close', async (code) => {
-    await util.log(`child process exited with code ${code}`);
+    await util.logLine(`child process exited with code ${code}`);
   });
   return { port, session: child }
 }
@@ -97,6 +73,11 @@ const models = async () => {
     let items = []
     for(let model of _models) {
       let id = path.relative(homedir, model)
+      let chunks = id.split("/").slice(2)
+      let repo = chunks[0] + "/" + chunks[1]
+      let file = chunks[2]
+
+      id = `https://huggingface.co/${repo}/resolve/main/${file}`
       items.push({
         id,
         object: "model",
@@ -116,9 +97,15 @@ const models = async () => {
   }
 }
 const exists = async path => !!(await fs.promises.stat(path).catch(e => false));
-const checkpoint = async (repo, file) => {
+const checkpoint = async (repo, file, cb) => {
 
   const modeldir = path.resolve(homedir, "models", "huggingface", repo)
+
+
+  // Don't proceed if LLAMANET_OFFLINE is set to true
+  if (process.env.LLAMANET_OFFLINE) {
+    return
+  }
 
   // check if the file exists
   const checkpoint_path = path.resolve(modeldir, file)
@@ -151,18 +138,20 @@ const checkpoint = async (repo, file) => {
     removeOnFail: false,
     retry: { maxRetries: 10, delay: 5000 },
   })
+  await util.logLine(`Downloading ${file}`)
   let res = await new Promise((resolve, reject) => {
     dl.on('end', async () => {
-      await util.log('Download Completed');
+      await util.logLine('Download Completed');
       resolve()
     })
     dl.on('error', async (err) => {
-      await util.log('Download Error: ' + err.stack)
+      await util.logLine('Download Error: ' + err.stack)
       reject(err)
     })
     dl.on('progress', (stats) => {
       let p = Math.floor(stats.progress)
-      let str = `Downloading ${file} `
+      let str = ""
+//      let str = `Downloading ${file} `
       for(let i=0; i<p; i++) {
         str += "█"
       }
@@ -172,6 +161,7 @@ const checkpoint = async (repo, file) => {
       process.stdout.write(`\r${str}`)
     })
     dl.on('download', (downloadInfo) => {
+      cb({ data: Buffer.from(`downloading ${file}...\n`), type: null })
       const msg = `\r\n[Download Started] ${JSON.stringify({ name: downloadInfo.fileName, total: downloadInfo.totalSize })}\r\n`
     })
     dl.on('skip', (skipInfo) => {
@@ -201,6 +191,13 @@ const download = async () => {
 
   // check if llamacpp already downloaded. if downloaded, return immediately
   const zippath = path.resolve(homedir, "llamacpp.zip")
+
+  // don't proceed if LLAMANET_OFFLINE is set to true
+  if (process.env.LLAMANET_OFFLINE) {
+    return
+  }
+
+  // don't proceed if the zip file exists already
   let downloaded = await exists(zippath)
   if (downloaded) {
     return
@@ -209,7 +206,7 @@ const download = async () => {
   // download and unzip llamacpp if not yet 
   const release = await Releases()
   if (!release) {
-    await util.log("no valid release")
+    await util.logLine("no valid release")
     return
   }
   const url = release.url
@@ -228,18 +225,19 @@ const download = async () => {
     removeOnFail: false,
     retry: { maxRetries: 10, delay: 5000 },
   })
+  await util.logLine("Downloading llama.cpp")
   let res = await new Promise((resolve, reject) => {
     dl.on('end', async () => {
-      await util.log('Download Completed');
+      await util.logLine(' Download Completed');
       resolve()
     })
     dl.on('error', async (err) => {
-      await util.log('Download Error: ' + err.stack)
+      await util.logLine('Download Error: ' + err.stack)
       reject(err)
     })
     dl.on('progress', (stats) => {
       let p = Math.floor(stats.progress)
-      let str = `Downloading llama.cpp `
+      let str = ""
       for(let i=0; i<p; i++) {
         str += "█"
       }
@@ -276,4 +274,4 @@ const download = async () => {
   await decompress(path.resolve(homedir, "llamacpp.zip"), homedir)
 //  await fs.promises.rm(path.resolve(homedir, "llamacpp.zip"))
 }
-module.exports = { run, server, models, download, checkpoint }
+module.exports = { server, models, download, checkpoint }

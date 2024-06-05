@@ -39,6 +39,30 @@ https://x.com/cocktailpeanut
 
 # Quickstart
 
+## 1. Terminal
+
+Let's try the fastest way to get going. Start the llamanet server:
+
+```
+npx llamanet@latest on
+```
+
+Then open another terminal and run a curl command:
+
+```
+curl --request POST \
+     --url http://127.0.0.1:42424/v1/chat/completions \
+     --header "Content-Type: application/json" \
+     --data '{
+       "model": "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-q4.gguf",
+       "messages": [
+         { "role": "system", "content": "You are a helpful assistant." },
+         { "role": "user", "content": "Hello!" }
+       ]
+     }'
+```
+
+
 ## 1. Using OpenAI Package
 
 Let's first start by using the `openai` npm package. First install `llamanet` and `openai`:
@@ -338,26 +362,7 @@ await llamanet({
 })
 ```
 
-## 6. logs
-
-start monitoring the `log.txt` file and print
-
-### CLI
-
-```
-npx llamanet logs
-```
-
-### Node.js
-
-```javascript
-const llamanet = require('llamanet');
-await llamanet({
-  _: [ "logs" ]
-})
-```
-
-## 7. models
+## 6. models
 
 display models
 
@@ -411,3 +416,4 @@ You can customize the behavior of Llamanet with environment variables.
 
 - `LLAMANET_PATH`: Where to store everything. (Default: `~/llamanet`)
 - `LLAMANET_DEFAULT_MODEL`: Every API request contains a `model` attribute (example: https://huggingface.co/NousResearch/Hermes-2-Pro-Llama-3-8B-GGUF/resolve/main/Hermes-2-Pro-Llama-3-8B-F16.gguf). If the specified model url fails to download, the `LLAMANET_DEFAULT_MODEL` environment variable will be used to decide the default model to load from (The default is https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-fp16.gguf)
+- `LLAMANET_OFFLINE`: Ensure everything runs offline. Setting `LLAMANET_OFFLINE` to `true` has the effect of disabling remote HTTP requests (such as downloading checkpoints from huggingface, downloading the llama.cpp binaries, etc.)

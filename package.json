@@ -1,6 +1,6 @@
 {
   "name": "llamanet",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -12,6 +12,7 @@
     "llamanet": "./bin/index.js"
   },
   "dependencies": {
+    "colors": "^1.4.0",
     "cross-fetch": "^4.0.0",
     "decompress": "^4.2.1",
     "ejs": "^3.1.10",

@@ -3,11 +3,13 @@
 <script src="xterm.min.js"></script>
 <link href="xterm.min.css" rel="stylesheet"/>
 <style>
+/*
 .container {
   display: flex;
   flex-grow: 1;
   overflow: auto;
 }
+*/
 pre {
   margin: 0;
 }
@@ -21,6 +23,7 @@ pre {
 .flexible {
   flex-grow: 1;
 }
+/*
 .container .col {
   flex-shrink: 0;
   overflow: auto;
@@ -29,12 +32,15 @@ pre {
   padding: 0 10px;
   box-sizing: border-box;
 }
+*/
+/*
 .container .col.col-7 {
   width: 70%;
 }
 .container .col.col-3 {
   width: 30%;
 }
+*/
 .code {
   overflow: auto;
   padding: 20px;
@@ -78,8 +84,9 @@ tr {
   cursor: pointer;
 }
 td {
+  padding: 5px 10px;
+  box-sizing: border-box;
   font-size: 14px;
-  padding: 2px;
 }
 pre:empty {
   margin: 0;
@@ -190,6 +197,9 @@ th {
 #local, #started {
   width: 100%;
 }
+#local:empty, #started:empty {
+  display: none;
+}
 #started td {
   color: yellowgreen;
 }
@@ -226,11 +236,12 @@ td, th {
 }
 #term {
   margin: 0;
-/*
-  max-height: 200px;
-  */
-  font-size: 12px;
+  max-height: 300px;
+  font-size: 10px;
+  /*
   height: 100%;
+  */
+
   overflow: auto;
   padding: 20px;
   box-sizing: border-box;
@@ -314,15 +325,20 @@ const updateStatus = async () => {
     return `<tr data-id='${r.file}'>
   <td data-key="${r.file}">
     <div class='flex'>
-      <button class='stop btn' data-file="${r.file}">Stop</button>
-      <a class='item' href="http://localhost:${r.port}" target="_blank">${r.file}</a>
+      <button class='stop btn' data-url="${r.url}" data-file="${r.file}">Stop</button>
+      <div>${r.repo}/${r.file}</div>
       <div class='flexible'></div>
-      <button class='api btn' data-port="${r.port}" data-file="${r.file}">API</button>
+      <a class='btn' href="http://localhost:${r.port}" target="_blank">Web</a>
+      <button class='api btn' data-url="${r.url}" data-port="${r.port}" data-file="${r.file}">API</button>
     </div>
   </td>
 </tr>`
   }).join("")
-  document.querySelector("#started").innerHTML = header + body
+  if (status.response.length > 0) {
+    document.querySelector("#started").innerHTML = header + body
+  } else {
+    document.querySelector("#started").innerHTML = ""
+  }
 }
 
 const api = async (file, port) => {
@@ -334,7 +350,7 @@ const api = async (file, port) => {
 }
 
 const stop = async (r) => {
-  let _ = ["stop", "local", r.file]
+  let _ = ["stop", r.url]
   const response = await fetch("/call", {
     method: "post",
     headers: { "Content-Type": "application/json" },
@@ -347,13 +363,7 @@ const stop = async (r) => {
 const start = async (r) => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  let _
-
-  if (r.repo) {
-    _ = ["start", "huggingface", r.repo, r.file]
-  } else {
-    _ = ["start", "local", r.file]
-  }
+  let _ = ["start", r.url]
   const response = await fetch("/call", {
     method: "post",
     headers: { "Content-Type": "application/json" },
@@ -402,6 +412,8 @@ const search = async (q) => {
     r.model_card = `https://huggingface.co/${r.id}`
     r.files = `https://huggingface.co/${r.id}/tree/main`
     r.created = new Date(r.createdAt).toLocaleDateString()
+
+    console.log("#r", r)
     return `<tr data-id='${r.id}'>` + keys.map((key) => {
       if (key === 'model_card') {
         return `<td data-key='${key}' data-val='${r[key]}'><a class='btn' href="${r[key]}" target="_blank">View</a></td>`
@@ -413,25 +425,33 @@ const search = async (q) => {
     }).join("") + "</tr>"
   }).join("")
   document.querySelector("main table#hf").innerHTML = header + body
-  console.log("files", files)
 }
 const local = async () => {
   const response = await fetch("/v1/models").then((res) => {
     return res.json()
   })
-  console.log("response", response)
   const gguf = response.data
-  const keys = ["filename"]
-  const header = "<tr>" + keys.map((key) => {
-    return `<th data-key="${key}">${key}</th>`
-  }).join("") + "</tr>"
-  const body = gguf.map((r) => {
-    return `<tr data-id='${r.id}'>` + keys.map((key) => {
-      return `<td data-key='${key}' data-val='${r.id}'><button class='btn' data-file="${r.id}">Start</button> ${r.id}</td>`
+
+  if (gguf.length > 0) {
+    const keys = ["filename"]
+    const header = "<tr>" + keys.map((key) => {
+      return `<th data-key="${key}">${key}</th>`
     }).join("") + "</tr>"
-  }).join("")
-  document.querySelector("main table#local").innerHTML = header + body
-  console.log("files", files)
+    const body = gguf.map((r) => {
+      return `<tr data-id='${r.id}'>` + keys.map((key) => {
+        return `<td data-key='${key}' data-val='${r.id}'><button class='btn' data-url="${r.id}">Start</button> ${r.id}</td>`
+      }).join("") + "</tr>"
+    }).join("")
+    document.querySelector("main table#local").innerHTML = header + body
+  } else {
+    document.querySelector("#tab1").classList.add("hidden")
+    await search()
+    document.querySelector("#tab1-content").classList.add("hidden")
+    document.querySelector("#tab2-content").classList.remove("hidden")
+    document.querySelector("#tab1").classList.remove("selected")
+    document.querySelector("#tab2").classList.add("selected")
+    document.querySelector("input[type=search]").focus()
+  }
 }
 document.addEventListener("DOMContentLoaded", async () => {
 //  const term = new Terminal({
@@ -439,16 +459,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 //  });
 //  term.open(document.querySelector('#terminal'));
   es.addEventListener('term', async ev => {
-    console.log("ev", ev)
     let event = JSON.parse(ev.data)
-    console.log("## event", event)
     if (event.data) {
       const decoded = enc.decode(new Uint8Array(event.data.data))
-      console.log({ decoded })
-
       let term = document.querySelector('#term')
       let html = term.innerHTML
-      term.innerHTML = html + decoded;
+      term.textContent = html + decoded;
       term.scrollTop = term.scrollHeight;
     }
 
@@ -456,10 +472,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     //term.write(decoded)
 
     if (event.type === "started") {
-      console.log("started")
       await updateStatus()
     } else if (event.type === "stopped") {
-      console.log("stopped")
       await updateStatus()
     }
   });
@@ -501,8 +515,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     }
     if (target) {
-      let file = target.getAttribute("data-file")
-      await stop({ file }) 
+      let url = target.getAttribute("data-url")
+      await stop({ url }) 
       return
     }
 
@@ -516,46 +530,43 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     if (target) {
       let port = target.getAttribute("data-port")
-      let file = target.getAttribute("data-file")
-      await api(file, port)
+      let url = target.getAttribute("data-url")
+      await api(url, port)
       return
     }
   })
   document.querySelector("table#local").addEventListener("click", async (e) => {
+    debugger
     let target
     // 1. start
-    if (e.target.getAttribute("data-file")) {
+    if (e.target.getAttribute("data-url")) {
       target = e.target
     } else {
-      let t = e.target.closest("[data-file]")
+      let t = e.target.closest("[data-url]")
       if (t) {
         target = t
       }
     }
-    console.log("target", target)
     if (target) {
-      let file = target.getAttribute("data-file")
-      await start({ file }) 
+      let url = target.getAttribute("data-url")
+      await start({ url }) 
       return
     }
   })
   document.querySelector("table#hf").addEventListener("click", async (e) => {
     let target
     // 1. start
-    if (e.target.getAttribute("data-file")) {
+    if (e.target.getAttribute("data-url")) {
       target = e.target
     } else {
-      let t = e.target.closest("[data-file]")
+      let t = e.target.closest("[data-url]")
       if (t) {
         target = t
       }
     }
-    console.log("target", target)
     if (target) {
-      let repo = target.getAttribute("data-repo")
-      let file = target.getAttribute("data-file")
-      console.log({ repo, file })
-      await start({ repo, file }) 
+      let url = target.getAttribute("data-url")
+      await start({ url })
       return
     }
 
@@ -573,7 +584,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       // expand
       let id = target.getAttribute("data-id")
       target.querySelector("td[data-key=id] .slot").innerHTML = files[id].map((file) => {
-        return `<div><button data-repo="${id}" data-file="${file}" class='btn'>Start</button> ${file}</div>`
+        let url = "https://huggingface.co/" + id + "/resolve/main/" + file
+        return `<div><button data-url="${url}" data-file="${file}" class='btn'>Start</button> ${file}</div>`
       }).join("")
       return
     }
@@ -590,7 +602,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     if (target) {
       const sort = target.getAttribute("data-key")
-      console.log("sort", sort)
       if (sort === "id" || sort === "author") {
       } else {
         const q = document.querySelector("#q").value
@@ -598,8 +609,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
       return
     }
-    console.log("x")
-
 
   })
 })
@@ -608,6 +617,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 <body>
 <nav><h1>llamanet</h1></nav>
 <div class='container'>
+  <div class='col col-3'>
+    <div id="terminal"></div>
+    <pre id='term'></pre>
+    <pre id='code'></pre>
+  </div>
   <div class='col col-7'>
     <table id='started'></table>
     <div id='api' class='hidden'>
@@ -637,11 +651,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         <table id='hf'></table>
       </section>
     </main>
-  </div>
-  <div class='col-3'>
-    <div id="terminal"></div>
-    <pre id='term'></pre>
-    <pre id='code'></pre>
   </div>
 </div>
 </body>

@@ -10,7 +10,12 @@ const checkPort = (port) => {
   return portfinder.isAvailablePromise({ port })
 }
 const log = async (data) => {
-  await fs.promises.appendFile(path.resolve(homedir, "log.txt"), data)
+  //await fs.promises.appendFile(path.resolve(homedir, "log.txt"), data)
+  process.stdout.write(data)
 }
-module.exports = { port, checkPort, log }
+const logLine = async (data) => {
+  //await fs.promises.appendFile(path.resolve(homedir, "log.txt"), data)
+  process.stdout.write(data + "\n")
+}
+module.exports = { port, checkPort, log, logLine }
 

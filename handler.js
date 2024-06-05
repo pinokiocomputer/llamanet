@@ -1,3 +1,4 @@
+const colors = require('colors')
 const os = require('os')
 const fs = require('fs')
 const path = require('path')
@@ -29,9 +30,6 @@ class Handler {
           return response
         } else if (cmd === 'models') {
           let response = await llamacpp.models()
-          return response
-        } else if (cmd === 'logs') {
-          let response = await this.logs()
           return response
         }
       } else {
@@ -89,15 +87,6 @@ class Handler {
       await this.stop([proc.url])
     }
   }
-  async logs(info) {
-    const logPath = path.resolve(homedir, "log.txt")
-    fs.watchFile(logPath, { persistent: true, interval: 1000 }, async (curr, prev) => {
-      if (curr.mtime !== prev.mtime) {
-        const data = await fs.promises.readFile(logPath, "utf8")
-        process.stdout.write(data.slice(prev.size));
-      }
-    });
-  }
   async stop(info, callback) {
     if (info && Array.isArray(info) && info.length > 0) {
       const [url] = info
@@ -153,31 +142,31 @@ class Handler {
     let terminal = ""
     try {
       // try downloading the model from the url
-      await llamacpp.checkpoint(repo, file)
+      await llamacpp.checkpoint(repo, file, callback)
     } catch (e) {
       // if the model download fails, use the default model
-      await util.log("requested model doesn't exist: " + u)
+      await util.logLine("requested model doesn't exist: " + u)
       const rd = this.resolveUrl(this.default_model)
       repo = rd.repo
       file = rd.file 
 
       // download the default model
-      await llamacpp.checkpoint(repo, file)
+      await llamacpp.checkpoint(repo, file, callback)
       u = this.default_model
-      await util.log("use the default model: " + u)
+      await util.logLine("use the default model: " + u)
     }
-    //console.log("checkpoint downloaded", { repo, file })
     const { port, session } = await new Promise(async (resolve, reject) => {
       const { port, session } = await llamacpp.server({ repo, file, kwargs }, async (data) => {
         terminal += data
-        await fs.promises.appendFile(path.resolve(homedir, "log.txt"), data)
+        await util.log(data)
         if (/HTTP server listening/i.test(terminal)) {
+          terminal = ""
           // started
-          //callback({ data: Buffer.from(data).toString(), type: "started" })
           callback({ data: data, type: "started" })
+          await util.logLine(colors.green(`\n█ llama.cpp server for ${repo} ${file} running at `) + colors.blue(`http://localhost:${port}\n`))
+
           resolve({ port, session })
         } else {
-          //callback({ data: Buffer.from(data).toString(), type: null })
           callback({ data: data, type: null })
         }
       })

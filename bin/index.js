@@ -8,9 +8,8 @@ const argv = yargs(hideBin(process.argv)).parse();
   if (response && Object.keys(response).length > 0) {
     console.log(JSON.stringify(response, null, 2))
   }
-  const persistent = [ 'on', 'start', 'logs' ]
+  const persistent = [ 'on', 'start' ]
   if (!persistent.includes(argv._[0])) {
-    console.log("S")
     process.exit()
   }
 })();
