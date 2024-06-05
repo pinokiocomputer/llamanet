@@ -67,7 +67,7 @@ Here's the full process:
 ![terminal.gif](terminal.gif)
 
 
-## 1. Using OpenAI Package
+## 2. Using OpenAI Package
 
 Let's first start by using the `openai` npm package. First install `llamanet` and `openai`:
 
@@ -115,7 +115,7 @@ If you try running the same code again, it will not require the downloads theref
 
 ![secondrun.gif](secondrun.gif)
 
-## 2. Without OpenAI Package
+## 3. Without OpenAI Package
 
 The `openai` package is simply an HTTP client that makes HTTP requests in certain format. Let's try WITHOUT using the `openai` package and directly make `fetch` requests:
 
