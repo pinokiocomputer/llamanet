@@ -43,8 +43,16 @@ https://x.com/cocktailpeanut
 
 Let's try the fastest way to get going. Start the llamanet server:
 
+On Linux/Mac:
+
 ```
-npx llamanet@latest on
+LLAMANET_DEBUG=true npx llamanet@latest on
+```
+
+On Windows:
+
+```
+set LLAMANET_DEBUG=true && npx llamanet@latest on
 ```
 
 Then open another terminal and run a curl command:
@@ -421,3 +429,4 @@ You can customize the behavior of Llamanet with environment variables.
 - `LLAMANET_PATH`: Where to store everything. (Default: `~/llamanet`)
 - `LLAMANET_DEFAULT_MODEL`: Every API request contains a `model` attribute (example: https://huggingface.co/NousResearch/Hermes-2-Pro-Llama-3-8B-GGUF/resolve/main/Hermes-2-Pro-Llama-3-8B-F16.gguf). If the specified model url fails to download, the `LLAMANET_DEFAULT_MODEL` environment variable will be used to decide the default model to load from (The default is https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-fp16.gguf)
 - `LLAMANET_OFFLINE`: Ensure everything runs offline. Setting `LLAMANET_OFFLINE` to `true` has the effect of disabling remote HTTP requests (such as downloading checkpoints from huggingface, downloading the llama.cpp binaries, etc.)
+- `LLAMANET_DEBUG`: set to `true` to display the entire llamanet log in realtime. The default is `false`.

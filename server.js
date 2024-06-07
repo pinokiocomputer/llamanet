@@ -38,6 +38,9 @@ class Server {
     // if the server port is running, return
     const available = await util.checkPort(this.port)
     if (!available) {
+      // exit since there's already a process running
+      await util.logLine(colors.green(`█ [ok] llamanet already running.`))
+      process.exit()
       return
     }
 

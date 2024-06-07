@@ -149,7 +149,7 @@ const checkpoint = async (repo, file, cb) => {
       await util.logLine('Download Error: ' + err.stack)
       reject(err)
     })
-    dl.on('progress', (stats) => {
+    dl.on('progress', async (stats) => {
       let p = Math.floor(stats.progress)
       let str = ""
 //      let str = `Downloading ${file} `
@@ -159,7 +159,7 @@ const checkpoint = async (repo, file, cb) => {
       for(let i=p; i<100; i++) {
         str += "░"
       }
-      process.stdout.write(`\r${str}`)
+      await util.log(`\r${str}`)
     })
     dl.on('download', (downloadInfo) => {
       cb({ data: Buffer.from(`downloading ${file}...\n`), type: null })
@@ -236,7 +236,7 @@ const download = async () => {
       await util.logLine('Download Error: ' + err.stack)
       reject(err)
     })
-    dl.on('progress', (stats) => {
+    dl.on('progress', async (stats) => {
       let p = Math.floor(stats.progress)
       let str = ""
       for(let i=0; i<p; i++) {
@@ -245,7 +245,7 @@ const download = async () => {
       for(let i=p; i<100; i++) {
         str += "░"
       }
-      process.stdout.write(`\r${str}`)
+      await util.log(`\r${str}`)
     })
     dl.on('download', (downloadInfo) => {
       const msg = `\r\n[Download Started] ${JSON.stringify({ name: downloadInfo.fileName, total: downloadInfo.totalSize })}\r\n`

@@ -11,11 +11,14 @@ const checkPort = (port) => {
 }
 const log = async (data) => {
   //await fs.promises.appendFile(path.resolve(homedir, "log.txt"), data)
-  process.stdout.write(data)
+
+  if (process.env.LLAMANET_DEBUG) {
+    process.stdout.write(data)
+  }
 }
 const logLine = async (data) => {
   //await fs.promises.appendFile(path.resolve(homedir, "log.txt"), data)
-  process.stdout.write(data + "\n")
+  await log(data + "\n")
 }
 module.exports = { port, checkPort, log, logLine }
 
