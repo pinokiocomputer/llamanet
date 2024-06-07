@@ -46,13 +46,13 @@ Let's try the fastest way to get going. Start the llamanet server:
 On Linux/Mac:
 
 ```
-LLAMANET_DEBUG=true npx llamanet@latest on
+LLAMANET_DEBUG=true npx llamanet@latest
 ```
 
 On Windows:
 
 ```
-set LLAMANET_DEBUG=true && npx llamanet@latest on
+set LLAMANET_DEBUG=true && npx llamanet@latest
 ```
 
 Then open another terminal and run a curl command:
