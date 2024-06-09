@@ -2,7 +2,20 @@
 
 ![llamanet.png](llamanet.png)
 
-![code.png](code.png)
+
+Llamanet is an open source, drop-in library/tool that lets you instantly turn any OpenAI-powered apps into llama.cpp apps, with just one line.
+
+It works with **zero setup** and **zero 3rd party dependency** so you don't need to know anything, and just treat it like OpenAI.
+
+Llamanet ships with a dead simple isomorphic API that works across:
+
+- JavaScript
+- Python
+- CLI
+
+![code-js.png](code-js.png)
+
+![code-python.png](code-python.png)
 
 - Want to instantly port an OpenAI API based LLM app to use local LLMs?
 - Don't want to ask your users to download a 3rd party LLM app or server just to use your app?
@@ -34,6 +47,11 @@ https://github.com/pinokiocomputer/llamanet
 ## X
 
 https://x.com/cocktailpeanut
+
+## Documentation
+
+https://llamanet.netlify.app
+
 
 ---
 
