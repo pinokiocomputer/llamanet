@@ -38,6 +38,14 @@ Note that it downloads llamacpp and the models on the fly the first time it's ru
 
 ---
 
+# Demo
+
+Watch the video to see it in action:
+
+[![video.png](video.png)](https://www.youtube.com/watch?v=PN5cEi7GqAE)
+
+---
+
 # Community
 
 ## GitHub
