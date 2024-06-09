@@ -1,10 +1,11 @@
 {
   "name": "llamanet",
-  "version": "0.0.16",
+  "version": "0.0.18",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:python": "cd python && python setup.py sdist bdist_wheel",
+    "publish:python": "cd python && twine upload dist/*"
   },
   "author": "",
   "license": "MIT",

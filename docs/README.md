@@ -75,7 +75,9 @@ Here's the full process:
 ![terminal.gif](terminal.gif)
 
 
-## 2. Using OpenAI Package
+## 2. Node.js
+
+### Using OpenAI Package
 
 Let's first start by using the `openai` npm package. First install `llamanet` and `openai`:
 
@@ -91,7 +93,7 @@ const llamanet = require("llamanet");
 const OpenAI = require('openai');
 (async () => {
   // 2. Start llamanet
-  await llamanet()
+  await llamanet.run()
   const openai = new OpenAI()
   const stream = await openai.chat.completions.create({
     // 3. Specify the Huggingface URL of any GGUF model
@@ -123,7 +125,7 @@ If you try running the same code again, it will not require the downloads theref
 
 ![secondrun.gif](secondrun.gif)
 
-## 3. Without OpenAI Package
+### Without OpenAI Package
 
 The `openai` package is simply an HTTP client that makes HTTP requests in certain format. Let's try WITHOUT using the `openai` package and directly make `fetch` requests:
 
@@ -131,7 +133,7 @@ The `openai` package is simply an HTTP client that makes HTTP requests in certai
 const llamanet = require("llamanet");
 const url = 'http://127.0.0.1:42424/v1/chat/completions';
 (async () => {
-  await llamanet();
+  await llamanet.run();
   const result = await fetch(url, {
     method: "post",
     headers: {
@@ -151,6 +153,43 @@ const url = 'http://127.0.0.1:42424/v1/chat/completions';
 })();
 ```
 
+## 3. Python
+
+Let's start by installing the `openai` and `llamanet` dependencies:
+
+```
+pip install openai llamanet
+```
+
+Now create a file named `app.py`
+
+```python
+from openai import OpenAI
+import llamanet
+llamanet.run()
+client = OpenAI()
+stream = client.chat.completions.create(
+  model="gpt-3.5-turbo",
+  messages=[{"role": "user", "content": "why did chicken cross the road?"}],
+  stream=True,
+)
+for chunk in stream:
+  if chunk.choices[0].delta.content is not None:
+    print(chunk.choices[0].delta.content, end="")
+```
+
+Run the file:
+
+```
+python app.py
+```
+
+Here's the full flow:
+
+![python.gif](python.gif)
+
+Note that it's taking an existing OpenAI powered app and just adding two lines (`import llamanet` and `llamanet.run()`), and it just works.
+
 ---
 
 # Usage
@@ -161,30 +200,27 @@ const url = 'http://127.0.0.1:42424/v1/chat/completions';
 
 ```javascript
 const llamanet = require('llamanet');
-await llamanet();
+await llamanet.run();
 ```
 
 ### Advanced
 
-You can pass commands to the `await llamanet()` call to run commands:
+You can pass commands to the `await llamanet.run()` call to run commands:
 
 
 ```javascript
-await llamanet(YARGS_PARSED_OBJECT)
+await llamanet.run(COMMAND_ARRAY)
 ```
-
-The `YARGS_PARSED_OBJECT` params needs to follow the yargs parsed object syntax, which can be turned into terminal commands with [yargs-unparser](https://github.com/yargs/yargs-unparser)
 
 For example:
 
 ```javascript
-awati llamanet({
-  _: [
-    "start",
-    "https://huggingface.co/bartowski/Phi-3-medium-128k-instruct-GGUF/resolve/main/Phi-3-medium-128k-instruct-IQ2_M.gguf?download=true"
-  ],
-  c: 128000,
-  verbose: true
+awati llamanet.run([
+  "start",
+  "https://huggingface.co/bartowski/Phi-3-medium-128k-instruct-GGUF/resolve/main/Phi-3-medium-128k-instruct-IQ2_M.gguf?download=true"
+  "-c",
+  128000,
+  "--verbose"
 })
 ```
 
@@ -197,8 +233,28 @@ npx llamanet start https://huggingface.co/bartowski/Phi-3-medium-128k-instruct-G
 Which starts a llama.cpp server with the model from `https://huggingface.co/bartowski/Phi-3-medium-128k-instruct-GGUF/resolve/main/Phi-3-medium-128k-instruct-IQ2_M.gguf?download=true`
 
 
+---
 
-## 2. CLI API
+## 2. Python API
+
+### Basic
+
+```javascript
+import llamanet
+llamanet.run()
+```
+
+### Advanced
+
+You can pass commands to the `llamanet.run()` call to run commands:
+
+```python
+llamanet.run(["start", "https://huggingface.co/bartowski/Phi-3-medium-128k-instruct-GGUF/resolve/main/Phi-3-medium-128k-instruct-IQ2_M.gguf", "-c", 128000, "--verbose"])
+```
+
+---
+
+## 3. CLI API
 
 If you want to use llamanet with non-node.js apps, you can also do so easily by using the CLI commands:
 
@@ -264,9 +320,7 @@ npx llamanet on
 
 ```javascript
 const llamanet = require('llamanet');
-await llamanet({
-  _: ["on"]
-})
+await llamanet.run(["on"])
 ```
 
 ## 2. off
@@ -283,9 +337,7 @@ npx llamanet off
 
 ```javascript
 const llamanet = require('llamanet');
-await llamanet({
-  _: ["off"]
-})
+await llamanet.run(["off"])
 ```
 
 ## 3. start
@@ -309,11 +361,13 @@ npx llamanet start <HUGGINGFACE_URL> -c 128000 --verbose
 
 ```javascript
 const llamanet = require('llamanet');
-await llamanet({
-  _: [ "start", <HUGGINGFACE_URL> ],
-  c: 128000
-  verbose: true
-})
+await llamanet.run([
+  "start",
+  <HUGGINGFACE_URL>,
+  "-c",
+  128000
+  "--verbose"
+])
 ```
 
 
@@ -341,18 +395,14 @@ Stop a specific llama.cpp endpoint:
 
 ```javascript
 const llamanet = require('llamanet');
-await llamanet({
-  _: [ "stop", <HUGGINGFACE_URL> ],
-})
+await llamanet.run(["stop", <HUGGINGFACE_URL>"])
 ```
 
 Stop all endpoints:
 
 ```javascript
 const llamanet = require('llamanet');
-await llamanet({
-  _: [ "stop" ]
-})
+await llamanet.run(["stop"])
 ```
 
 ## 5. status
@@ -369,9 +419,7 @@ npx llamanet status
 
 ```javascript
 const llamanet = require('llamanet');
-await llamanet({
-  _: [ "status" ]
-})
+await llamanet.run(["status"])
 ```
 
 ## 6. models
@@ -388,16 +436,14 @@ npx llamanet models
 
 ```javascript
 const llamanet = require('llamanet');
-const models = await llamanet({
-  _: [ "models" ]
-})
+const models = await llamanet.run(["models"])
 ```
 
 ---
 
 # How it works
 
-Here's what happens when you run `await llamanet()`:
+Here's what happens when you run `await llamanet.run()`:
 
 1. Downloads `llamacpp` prebuilt binaries to `~/llamanet` if it doesn't already exist.
 2. Starts a llamanet proxy server at port 42424 if it's not already running
