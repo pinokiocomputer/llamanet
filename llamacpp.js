@@ -26,7 +26,7 @@ const server = async (req, cb) => {
   //let file = path.resolve(homedir, req.file)
 
 
-  const k = Object.assign({}, { c: "2048" }, req.kwargs, { m: file, port })
+  const k = Object.assign({}, { c: "2048", embeddings: true }, req.kwargs, { m: file, port })
 
   const args = unparse({
     _: [],
@@ -76,7 +76,6 @@ const models = async () => {
       let chunks = id.split(path.sep).slice(2)
       let repo = chunks[0] + "/" + chunks[1]
       let file = chunks[2]
-      console.log({ id, chunks, repo, file })
 
       id = `https://huggingface.co/${repo}/resolve/main/${file}`
       items.push({
@@ -139,7 +138,7 @@ const checkpoint = async (repo, file, cb) => {
     removeOnFail: false,
     retry: { maxRetries: 10, delay: 5000 },
   })
-  await util.logLine(`Downloading ${file}`)
+  await util.logLine(`Synchronizing ${file}`)
   let res = await new Promise((resolve, reject) => {
     dl.on('end', async () => {
       await util.logLine('Download Completed');
