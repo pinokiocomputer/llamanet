@@ -7,7 +7,7 @@ Llamanet is an open source, drop-in library/tool that lets you instantly turn an
 
 It works with **zero setup** and **zero 3rd party dependency** so you don't need to know anything, and just treat it like OpenAI.
 
-Llamanet ships with a dead simple isomorphic API that works across:
+Llamanet ships with an isomorphic API that works across:
 
 - JavaScript
 - Python
