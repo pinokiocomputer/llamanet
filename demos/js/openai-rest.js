@@ -1,8 +1,8 @@
 const OpenAI = require('openai')
-const llamanet = require("../index")
+const llamanet = require("../../index");
 const msg = `what is the meaning of life? be brief`
 async function main() {
-  await llamanet()
+  await llamanet.run()
   const openai = new OpenAI({ apiKey: 'sk', });
   const response = await openai.chat.completions.create({
     model: "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-fp16.gguf",

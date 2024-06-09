@@ -1,13 +1,14 @@
 const OpenAI = require('openai')
-const llamanet = require("../index");
+const llamanet = require("../../index");
 (async () => {
 
   // 1. print status
-  let status = await llamanet({ _: ["status"] })
-  console.log(status)
+  let status = await llamanet.run({ _: ["status"] })
+  console.log("status", status)
 
   // 2. start llamacpp 1
-  await llamanet({ 
+
+  await llamanet.run({ 
     _: [
       "start",
       //"https://huggingface.co/bartowski/Phi-3-medium-128k-instruct-GGUF/resolve/main/Phi-3-medium-128k-instruct-IQ2_M.gguf",
@@ -16,6 +17,10 @@ const llamanet = require("../index");
     c: 128000,
     verbose: true
   })
+
+
+
+
   const openai = new OpenAI()
   console.log("make request")
 

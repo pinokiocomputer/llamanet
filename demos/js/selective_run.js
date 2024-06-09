@@ -1,12 +1,12 @@
 require('dotenv').config();
 const OpenAI = require('openai')
-const llamanet = require("../index");
+const llamanet = require("../../index");
 (async () => {
   // triggered if: 
   // LLAMANET=true node selective_run
   let model = "gpt-4o"
   if (process.env.LLAMANET) {
-    await llamanet()
+    await llamanet.run()
     model = "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-fp16.gguf"
   }
   const msg = `what is the meaning of life? be brief`

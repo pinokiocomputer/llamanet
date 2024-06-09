@@ -1,14 +1,12 @@
-// Demonstrate the instant drop-in replacement in action
 const OpenAI = require('openai')
-const llamanet = require("../index")
+const llamanet = require("../../index");
 const msg = `what comes after 1 2 3 5 8? give me as many variations as possible with reasons`;
 async function main() {
-  await llamanet()
+  await llamanet.run()
   const openai = new OpenAI()
-
-  // even thought the model says 'gpt-4o', since running in llamanet, the request starts the default model first
   const stream = await openai.chat.completions.create({
-    model: "gpt-4o",
+    //model: "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-fp16.gguf",
+    model: "https://huggingface.co/NousResearch/Hermes-2-Pro-Llama-3-8B-GGUF/resolve/main/Hermes-2-Pro-Llama-3-8B-F16.gguf",
     messages: [{ role: 'user', content: msg }],
     stream: true,
   });
