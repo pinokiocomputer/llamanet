@@ -1,3 +1,4 @@
+const yargs = require('yargs/yargs')
 const llamacpp = require('./llamacpp')
 const Server = require('./server')
 
@@ -14,22 +15,30 @@ const Server = require('./server')
 // VIEW MODELS
 // $ npx llamanet models
 
-module.exports = async (argv) => {
+module.exports = {
+  run: async (argv) => {
 
-  process.env.OPENAI_BASE_URL = "http://localhost:42424/v1"
-  process.env.OPENAI_API_KEY = "llamanet"
+    process.env.OPENAI_BASE_URL = "http://localhost:42424/v1"
+    process.env.OPENAI_API_KEY = "llamanet"
 
-  // 1. download llamacpp if it doesn't exist
-  await llamacpp.download()
+    // 1. download llamacpp if it doesn't exist
+    await llamacpp.download()
 
-  // 2. start the llamanet web server if it's not started yet
-  const server = new Server()
-  await server.start()
+    // 2. start the llamanet web server if it's not started yet
+    const server = new Server()
+    await server.start()
 
-  // 3. Call the command
+    // by default, no actions should exit
 
-  if (argv && argv._ && argv._.length > 0) {
-    const response = await server.call(argv)
-    return response
+    // 3. Call the command
+    if (argv) {
+      if (Array.isArray(argv)) {
+        const response = await server.call(argv)
+        return response
+      } else if (argv._ && argv._.length > 0) {
+        const response = await server.call(argv)
+        return response
+      }
+    }
   }
 }

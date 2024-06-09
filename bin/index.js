@@ -1,20 +1,29 @@
 #!/usr/bin/env node
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
-const run = require("../index")
+const llamanet = require("../index")
 const argv = yargs(hideBin(process.argv)).parse();
 (async () => {
-  const response = await run(argv)
+  const response = await llamanet.run(argv)
   if (response && Object.keys(response).length > 0) {
     console.log(JSON.stringify(response, null, 2))
   }
 
+  // when running in command mode, need to exit the process
   if (argv._.length > 0) {
-    const persistent = [ 'on', 'start' ]
-    if (!persistent.includes(argv._[0])) {
+    // if 'on' => keep running
+    // if 'start' => keep running
+    // otherwise => stop
+    let command = argv._[0]
+    if (command === 'on') {
+      // don't exit
+    } else if (command === 'start') {
+      // don't exit
+    } else {
+      // all other commands should exit after running in terminal since they are one off actions
       process.exit()
     }
   } else {
-    // npx llamanet (without arguments) => just start the server => so keep it running
+    // don't exit
   }
 })();

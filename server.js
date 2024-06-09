@@ -1,5 +1,6 @@
 const fetch = require('cross-fetch')
 const os = require('os')
+const yargs = require('yargs/yargs')
 const colors = require('colors')
 const path = require('path')
 const proxy = require('express-http-proxy-cp');
@@ -32,7 +33,7 @@ class Server {
 
     // if the server app already exists, return
     if (this.app) {
-      return
+      return { status: "app exists" }
     }
 
     // if the server port is running, return
@@ -40,8 +41,7 @@ class Server {
     if (!available) {
       // exit since there's already a process running
       await util.logLine(colors.green(`█ [ok] llamanet already running.`))
-      process.exit()
-      return
+      return { status: "already running" }
     }
 
     // check if the port is occupied. if occupied, don't start
@@ -113,6 +113,9 @@ class Server {
     })
     app.get('/stream', (req, res) => this.channel.subscribe(req, res));
     app.post("/call", async (req, res) => {
+      if (Array.isArray(req.body)) {
+        req.body = yargs(req.body).parse();
+      }
       const response = await this.handler.call(req.body, (event) => {
         this.channel.publish(JSON.stringify(event), "term")
 //        if (event.data) {
