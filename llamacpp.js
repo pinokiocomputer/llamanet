@@ -19,7 +19,7 @@ if (!fs.existsSync(homedir)) {
 const server = async (req, cb) => {
 
   const port = await util.port()
-  const command = "./server"
+  const command = "./llama-server"
   
   //let file = path.resolve(homedir, req.file)
   let file = path.resolve(homedir, "models/huggingface", req.repo, req.file)
